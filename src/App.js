@@ -13,12 +13,14 @@ class App extends Component {
 
   render() {
     return (
-      <div>
+      <div style={{ display: 'flex' }}>
         <Timer
           id="timer-1"
-          settings={{ hours: 0, minutes: 0, seconds: 0.4 }}
+          settings={{ hours: 0, minutes: 0, seconds: 1.5 }}
           onComplete={this.onTimerCompleted}
-        />
+        >
+          {(hours, minutes, seconds) => <span>{seconds}</span>}
+        </Timer>
       </div>
     );
   }

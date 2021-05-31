@@ -11,10 +11,32 @@ export default class Timer extends Component {
   }
 
   componentDidMount() {
-    this.setState({
-      time: this.getTimeInSeconds(),
-      timeLeft: this.getTimeInSeconds(),
-    });
+    if (
+      !/^(\d*\.)?\d+$/.test(this.props.settings.hours) ||
+      !/^(\d*\.)?\d+$/.test(this.props.settings.minutes) ||
+      !/^(\d*\.)?\d+$/.test(this.props.settings.seconds)
+    ) {
+      alert('Invalid input. Assuming time = 1s');
+      this.props.settings.hours = 0;
+      this.props.settings.minutes = 0;
+      this.props.settings.seconds = 1;
+      this.setState({
+        time: 1,
+        timeLeft: 1,
+      });
+    } else {
+      this.setState({
+        time: this.getTimeInSeconds(),
+        timeLeft: this.getTimeInSeconds(),
+      });
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.state.timeLeft <= 0.01) {
+      this.props.onComplete();
+      this.resetTime();
+    }
   }
 
   resetTime() {
@@ -23,11 +45,10 @@ export default class Timer extends Component {
     });
     clearInterval(this.interval);
     this.interval = null;
-    this.timeout = null;
   }
 
   handleStartTimer() {
-    if (this.timeout) return;
+    if (this.interval) return;
     this.interval = setInterval(() => {
       this.setState((currentState) => {
         return {
@@ -35,20 +56,15 @@ export default class Timer extends Component {
         };
       });
     }, 100);
-    this.timeout = setTimeout(() => {
-      this.props.onComplete();
-      this.resetTime();
-    }, this.state.time * 1000);
   }
 
   handleStopTimer() {
-    clearTimeout(this.timeout);
     this.resetTime();
   }
 
   getTimeInSeconds() {
     return (
-      this.props.settings.seconds +
+      +this.props.settings.seconds +
       60 * this.props.settings.minutes +
       3600 * this.props.settings.hours
     );
@@ -58,7 +74,11 @@ export default class Timer extends Component {
     return (
       <div>
         <span>
-          {`${this.props.settings.hours}:${this.props.settings.minutes}:${this.props.settings.seconds}`}
+          {this.props.children(
+            this.props.settings.hours,
+            this.props.settings.minutes,
+            this.props.settings.seconds
+          )}
         </span>
         <hr />
         <span>{this.state.timeLeft.toFixed(1)}</span>
