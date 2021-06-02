@@ -33,7 +33,7 @@ export default class Timer extends Component {
   }
 
   componentDidUpdate() {
-    if (this.state.timeLeft <= 0.01) {
+    if (this.state.timeLeft <= 0.001) {
       this.props.onComplete();
       this.resetTime();
     }
